@@ -28,8 +28,9 @@ class Deck(object):
                     
 
 class Shoe(object):
-    def __init__(self, deck_count):
+    def __init__(self, deck_count=6, shuffle_times=7):
         self.deck_count = deck_count
+        self.shuffle_times = shuffle_times
         self.shoe = []
         self.fill_shoe()
         self.shuffle()
@@ -41,7 +42,7 @@ class Shoe(object):
 
     def shuffle(self):
         """Shuffle the shoe list."""
-        for i in range(12):
+        for i in range(self.shuffle_times):
             shuffle(self.shoe)
 
     def deal_card(self):
@@ -50,6 +51,7 @@ class Shoe(object):
         #self.shoe.append(self.dealt_card) # add card to back of shoe
         if len(self.shoe) == 0:
             self.fill_shoe()
+            self.shuffle()
         return self.dealt_card
 
 
@@ -158,8 +160,9 @@ class Dealer(object):
 
 
 class Player(object):
-    def __init__(self, player_id):
+    def __init__(self, player_id, human=False):
         self.id = player_id
+        self.human = human
         self.balance = 0
         self.hand = Hand(self.id)
         self.wins = 0
@@ -203,7 +206,7 @@ class Table(object):
     def remove_player(self, player_id):
         self.players = {key: value for key, value in self.players.items()
                         if key is not player_id}
-
+        
     def determine_winner(self, player_id):
         player = self.players[player_id]
         if not self.determine_blackjack(player):

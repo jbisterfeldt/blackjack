@@ -1,10 +1,10 @@
 from blackjack import *
+import time
 # testing blackjack
 
 ######
 # TODO
 ######
-# Unit test: edge cases, ensure cards are not lost, etc
 # Handle splits
 # Implement double
 # Insurance, half bet, 2:1, available when dealer's up card is ace
@@ -13,21 +13,34 @@ from blackjack import *
 #   Inherit from Player class
 #   fill table with non-human players, random strategy
 # Logging, statistic collection
-# Cash in, ticket out
-# Bookkeeping
 # Tip/side-bet bonus
 
-def dev_table(numplayers=3):
+# Issues
+#   Blackjack appears to pay when dealer also has 21
+#   Player busts not updated, handled in Hand class
+
+
+def dev_table(numplayers = 3, balance = 0):
     table = Table()
-    for i in range(1,numplayers+1):
+    try:
+        player_count = max(table.players)
+    except ValueError: # max() arg is an empty sequence
+        player_count = 0
+    total_players = player_count + numplayers
+    for i in range(player_count+1,total_players+1):
         table.add_player(Player(i))
-        table.players[i].add_balance(0)
+        table.players[i].add_balance(balance)
+    #add_human(table, balance)
     return table
-        
+
+def add_human(table, balance):
+    num_players = len(table.players)
+    pid = len(table.players)+1
+    table.add_player(Player(pid, human=True))
+    table.players[pid].add_balance(balance)
+
 def dev_play(table, rounds=1000, shuffle_every=False):
     for rnd in range(rounds):
-        if shuffle_every:
-            table.shoe.shuffle()
         for i in table.players:
             table.players[i].bet(10)
         deal_round(table)
@@ -35,13 +48,15 @@ def dev_play(table, rounds=1000, shuffle_every=False):
         dealer_logic(table)
         score_round(table)
         reset_round(table)
-    for player in table.players:
-        print table.players[player]
+        if shuffle_every:
+            table.shoe.shuffle()
+    #for player in table.players:
+        #print table.players[player]
     profit = 0
     for p in table.players:
         profit -= (table.players[p].balance)
     print('House Profit: %s' % (profit))
-    return profit
+    return profit # for statistical work
 
 def deal_round(table):
     for card in range(2):
@@ -50,11 +65,11 @@ def deal_round(table):
 
 def score_round(table):
     for player in table.players:
-##        print 'Dealer  : %s' % table.dealer.hand.score
-##        print 'Player %s: %s' % (str(player),table.players[player].hand.score)
-##        print 'Dealer hand: %s' % (str(table.dealer.hand))
-##        print 'Player hand: %s' % (str(table.players[player].hand))
+##        bal_before = table.players[player].balance
+##        print('Player %s balance before payout: %s' % (player, bal_before))
         table.determine_winner(player)
+        bal_after = table.players[player].balance
+        #print('Player %s balance: %s' % (player, bal_after))
 
 def reset_round(table):
     table.dealer.hand.reset()
@@ -67,14 +82,46 @@ def dealer_logic(table):
     player_scores = []
     for p in table.players:
         player_scores.append(table.players[p].hand.score)
+    #print('Player scores: %s' % player_scores)
+    #print('Dealer score: %s' % dealer.hand.score)
     while dealer.hand.score < max(player_scores):
         if dealer.hand.score <= 16:
+            #print('Dealer hitting')
             dealer.take_card(table.shoe.deal_card())
+            #print('New Dealer score: %s' % dealer.hand.score)
         else:
+            dealer.hand.standed()
             break
 
 def player_logic(table):
     for player_id in table.players:
         player = table.players[player_id]
-        while player.hand.score <= 16:
+        if player.human:
+            human_input(table, player)
+        else:
+            #print('Player %s score: %s' %(str(player_id),player.hand.score))
+            while player.hand.score <= 16:
+                #print('Player %s hitting' %str(player_id))
+                player.take_card(table.shoe.deal_card())
+                #print('New score: %s' %player.hand.score)
+            player.hand.standed()
+
+def human_input(table, player):
+    print('Your hand %s, score %s' % (player.hand, player.hand.score))
+    while player.hand.stand == False:
+        action = raw_input('hit (h) or stand (s)? ')
+        if action.lower() == 'h':
             player.take_card(table.shoe.deal_card())
+            print('Hit %s, score now %s' % (table.shoe.dealt_card, player.hand.score))
+            if player.hand.score > 21:
+                print('Busted!')
+        if action.lower() == 's':
+            player.hand.standed()
+    
+for i in range(10):
+    table = dev_table()
+    t1 = time.time()
+    dev_play(table, rounds=100000, shuffle_every=True)
+    t2 = time.time()
+    print('%0.3f seconds' % (t2-t1))
+
