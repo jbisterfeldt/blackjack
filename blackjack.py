@@ -18,7 +18,7 @@ class Deck(object):
         self.build_deck()
 
     def __getitem__(self, index):
-        return(self.cards[index])
+        return self.cards[index]
 
     def build_deck(self):
         """Create a list containing ordered playing cards."""
@@ -46,7 +46,7 @@ class Shoe(object):
             shuffle(self.shoe)
 
     def deal_card(self):
-        """Returns card from shoe, replacing dealt card to end of shoe list."""
+        """Returns card from shoe. Shoe is refilled if empty."""
         self.dealt_card = self.shoe.pop(0)
         #self.shoe.append(self.dealt_card) # add card to back of shoe
         if len(self.shoe) == 0:
@@ -80,6 +80,7 @@ class Hand(object):
         self.blackjack = False
 
     def score_card(self, card):
+        """Score an individual card, noting aces."""
             if card.rank == 1:
                 self.score += 11
                 self.aces += 1
