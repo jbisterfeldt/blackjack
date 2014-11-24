@@ -47,11 +47,11 @@ class Shoe(object):
 
     def deal_card(self):
         """Returns card from shoe. Shoe is refilled if empty."""
-        self.dealt_card = self.shoe.pop(0)
-        #self.shoe.append(self.dealt_card) # add card to back of shoe
         if len(self.shoe) == 0:
             self.fill_shoe()
             self.shuffle()
+        self.dealt_card = self.shoe.pop(0)
+        #self.shoe.append(self.dealt_card) # return card to back of shoe
         return self.dealt_card
 
 
@@ -167,7 +167,7 @@ class Player(object):
         self.balance = 0
         self.hand = Hand(self.id)
         self.wins = 0
-        self.busts = 0 # Note: handled in Hand(), not updated in case of bust
+        self.busts = 0 # BUG: handled in Hand(), not updated in case of bust
                
     def __repr__(self):
         return("Wins: %s, Busts: %s, Hand: %s, Balance: %s" %(self.wins,
@@ -179,7 +179,7 @@ class Player(object):
         self.balance += points
         return self.balance
 
-    def decrease_balance(self, points):
+    def dec_balance(self, points):
         self.balance -= points
         return self.balance
 
@@ -258,30 +258,4 @@ class Table(object):
     def deal_dealer(self):
             self.dealer.take_card(self.shoe.deal_card())
 
-def score_round(table):
-    for player in table.players:
-        table.determine_winner(player)
-
-def reset_round(table):
-    table.dealer.hand.reset()
-    for player in table.players:
-        table.players[player].hand.reset()
-        table.players[player].hand.reset_bet()
-
-def dealer_logic(table):
-    dealer = table.dealer
-    player_scores = []
-    for p in table.players:
-        player_scores.append(table.players[p].hand.score)
-    while dealer.hand.score < max(player_scores):
-        if dealer.hand.score <= 16:
-            dealer.take_card(table.shoe.deal_card())
-        else:
-            break
-
-def player_logic(table):
-    for player_id in table.players:
-        player = table.players[player_id]
-        while player.hand.score <= 16:
-            player.take_card(table.shoe.deal_card())
             
