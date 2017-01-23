@@ -81,13 +81,13 @@ class Hand(object):
 
     def score_card(self, card):
         """Score an individual card, noting aces."""
-            if card.rank == 1:
-                self.score += 11
-                self.aces += 1
-            elif card.rank > 10:
-                self.score += 10
-            else:
-                self.score += card.rank
+        if card.rank == 1:
+            self.score += 11
+            self.aces += 1
+        elif card.rank > 10:
+            self.score += 10
+        else:
+            self.score += card.rank
 
     def handle_aces(self):
         """Modifies the card value of aces as needed, updates self.score."""
