@@ -117,11 +117,13 @@ def human_input(table, player):
                 print('Busted!')
         if action.lower() == 's':
             player.hand.standed()
-    
-for i in range(10):
-    table = dev_table()
-    t1 = time.time()
-    dev_play(table, rounds=100000, shuffle_every=True)
-    t2 = time.time()
-    print('%0.3f seconds' % (t2-t1))
 
+def run_profit(num_rounds = 10, hands=1000):
+    for i in range(num_rounds):
+        table = dev_table()
+        t1 = time.time()
+        dev_play(table, hands, shuffle_every=True)
+        t2 = time.time()
+        print('%0.3f seconds' % (t2-t1))
+
+run_profit()
