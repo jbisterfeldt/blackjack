@@ -39,40 +39,42 @@ def add_human(table, balance):
     table.add_player(Player(pid, human=True))
     table.players[pid].add_balance(balance)
 
-def dev_play(table, rounds=1000, shuffle_every=False):
+def dev_play(table, rounds=1000, shuffle_every=False, debug=True):
     for rnd in range(rounds):
         for i in table.players:
             table.players[i].bet(10)
         deal_round(table)
-        player_logic(table)
-        dealer_logic(table)
-        score_round(table)
-        print('Dealer: %s' % table.dealer)
-        for player in table.players:
-            print('Player %s: %s'% (player, table.players[player]))
+        player_logic(table,debug=debug)
+        dealer_logic(table,debug=debug)
+        score_round(table, debug=debug)
+        if debug:
+            print('Dealer: %s' % table.dealer)
+            for player in table.players:
+                print('Player %s: %s'% (player, table.players[player]))
+            print('######## END HAND ########\n')
         reset_round(table)
         if shuffle_every:
             table.shoe.shuffle()
-    #for player in table.players:
-        #print table.players[player]
     profit = 0
     for p in table.players:
         profit -= (table.players[p].balance)
     print('House Profit: %s' % (profit))
-    return profit # for statistical work
+    return profit # for (TODO) statistical work
 
 def deal_round(table):
     for card in range(2):
         table.deal_players()
         table.deal_dealer()
 
-def score_round(table):
+def score_round(table, debug=False):
     for player in table.players:
-##        bal_before = table.players[player].balance
-##        print('Player %s balance before payout: %s' % (player, bal_before))
+        if debug:
+            bal_before = table.players[player].balance
+            print('Player %s balance before payout: %s' % (player, bal_before))
         table.determine_winner(player)
-        bal_after = table.players[player].balance
-        #print('Player %s balance: %s' % (player, bal_after))
+        if debug:
+            bal_after = table.players[player].balance
+            print('Player %s balance: %s' % (player, bal_after))
 
 def reset_round(table):
     table.dealer.hand.reset()
@@ -93,6 +95,8 @@ def dealer_logic(table, debug=False):
             dealer.take_card(table.shoe.deal_card())
             #print('New Dealer score: %s' % dealer.hand.score)
         else:
+            if debug:
+                print('Dealer standing\n')
             dealer.hand.standed()
             break
 
@@ -102,16 +106,22 @@ def player_logic(table, debug=False):
         if player.human:
             human_input(table, player)
         else:
-            #print('Player %s score: %s' %(str(player_id),player.hand.score))
+            if debug:
+                print('Player %s score: %s' %(str(player_id),player.hand.score))
             while player.hand.score <= 16:
-                #print('Player %s hitting' %str(player_id))
+                if debug:
+                    print('Player %s hits' %str(player_id))
                 player.take_card(table.shoe.deal_card())
-                #print('New score: %s' %player.hand.score)
+                if debug:
+                    print('New score: %s' %player.hand.score)
+            if debug:
+                print('Player %s standing\n' % player.id)
             player.hand.standed()
 
 def human_input(table, player):
     print('Your hand %s, score %s' % (player.hand, player.hand.score))
-    while player.hand.stand == False:
+    #while player.hand.stand == False:
+    while not player.hand.stand:
         action = raw_input('hit (h) or stand (s)? ')
         if action.lower() == 'h':
             player.take_card(table.shoe.deal_card())
@@ -121,11 +131,11 @@ def human_input(table, player):
         if action.lower() == 's':
             player.hand.standed()
 
-def run_profit(num_rounds = 1, hands=1):
+def run_profit(num_rounds = 1, hands=3):
     for i in range(num_rounds):
         table = dev_table()
         t1 = time.time()
-        dev_play(table, hands, shuffle_every=True)
+        dev_play(table, hands, shuffle_every=True, debug=True)
         t2 = time.time()
         print('%0.3f seconds' % (t2-t1))
 

@@ -157,10 +157,10 @@ class Dealer(object): # TODO: Player class should inherit from dealer
         self.hand = Hand(owner_id=0) 
 
     def __repr__(self):
-        return("Hand: %s\nWins %s, Busts: %s, Pushes: %s\n" %(self.hand,
-                                                             self.wins,
-                                                             self.busts,
-                                                             self.pushes))
+        return("Score: %s, Hand: %s\nBusts: %s, Pushes: %s\n" %(self.hand.score_hand(),
+                                                                         self.hand,
+                                                                         self.busts,
+                                                                         self.pushes))
     def take_card(self, card):
         self.hand.hit(card)
         return self.hand
@@ -177,10 +177,11 @@ class Player(object):
         # TODO: implement increment of bust count when hand is scored >21
                
     def __repr__(self):
-        return("Hand: %s\nWins: %s, Busts: %s, Balance: %s\n" %(self.hand,
-                                                              self.wins,
-                                                              self.busts,
-                                                              self.balance))
+        return("Score: %s, Hand: %s\nWins: %s, Busts: %s, Balance: %s\n" %(self.hand.score_hand(),
+                                                                           self.hand,
+                                                                           self.wins,
+                                                                           self.busts,
+                                                                           self.balance))
 
     def add_balance(self, points):
         self.balance += points
@@ -228,7 +229,7 @@ class Table(object):
                         player.wins += 1
         player.hand.reset_bet()
 
-    def determine_blackjack(self, player):
+    def determine_blackjack(self, player): # TODO: Determine if blackjack requires a jack
         if player.hand.length() == 2:
             if player.hand.score == 21:
                 # need to check for dealer blackjack before paying
