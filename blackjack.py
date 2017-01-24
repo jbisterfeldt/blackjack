@@ -1,6 +1,7 @@
 from random import shuffle
 
 class Card:
+    '''Instance of a single card, numeric rank 1-14, suited'''
     def __init__(self, rank, suit):
         self.rank = rank
         self.suit = suit
@@ -12,6 +13,7 @@ class Card:
 
 
 class Deck(object):
+    '''Instance of a standard-ordered 52-card deck'''
     def __init__(self):
         self.suits = ['Spades', 'Hearts', 'Diamonds', 'Clubs']
         self.cards = []
@@ -28,6 +30,7 @@ class Deck(object):
                     
 
 class Shoe(object):
+    '''Instance of a shoe of decks, initialized shuffled'''
     def __init__(self, deck_count=6, shuffle_times=7):
         self.deck_count = deck_count
         self.shuffle_times = shuffle_times
@@ -56,6 +59,7 @@ class Shoe(object):
 
 
 class Hand(object):
+    '''Hand object, handles scoring and available options'''
     def __init__(self, owner_id):
         self.id = owner_id
         self.reset()
@@ -145,6 +149,7 @@ class Hand(object):
 
 
 class Dealer(object):
+    '''Dealer player object, with attributes for tracking statistics'''
     def __init__(self):
         self.busts = 0
         self.pushes = 0
@@ -224,6 +229,7 @@ class Table(object):
     def determine_blackjack(self, player):
         if player.hand.length() == 2:
             if player.hand.score == 21:
+                # need to check for dealer blackjack before paying
                 self.pay_blackjack(player)
                 player.wins += 1
                 return True
