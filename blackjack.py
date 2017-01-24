@@ -148,18 +148,19 @@ class Hand(object):
         return self.bust
 
 
-class Dealer(object):
-    '''Dealer player object, with attributes for tracking statistics'''
+class Dealer(object): # TODO: Player class should inherit from dealer
+    '''Dealer player object, with attributes for tracking statistics. Dealer ID is set to 0.'''
     def __init__(self):
+        self.wins = 0 # TODO: check if this is incremented
         self.busts = 0
         self.pushes = 0
-        self.hand = Hand(0) # dealer owner_id = 0
+        self.hand = Hand(owner_id=0) 
 
     def __repr__(self):
-        return("Wins: %s, Busts: %s, Pushes: %s, Hand: %s" %(self.wins,
+        return("Hand: %s\nWins %s, Busts: %s, Pushes: %s\n" %(self.hand,
+                                                             self.wins,
                                                              self.busts,
-                                                             self.pushes,
-                                                             self.hand))
+                                                             self.pushes))
     def take_card(self, card):
         self.hand.hit(card)
         return self.hand
@@ -173,11 +174,12 @@ class Player(object):
         self.hand = Hand(self.id)
         self.wins = 0
         self.busts = 0 # BUG: handled in Hand(), not updated in case of bust
+        # TODO: implement increment of bust count when hand is scored >21
                
     def __repr__(self):
-        return("Wins: %s, Busts: %s, Hand: %s, Balance: %s" %(self.wins,
+        return("Hand: %s\nWins: %s, Busts: %s, Balance: %s\n" %(self.hand,
+                                                              self.wins,
                                                               self.busts,
-                                                              self.hand,
                                                               self.balance))
 
     def add_balance(self, points):

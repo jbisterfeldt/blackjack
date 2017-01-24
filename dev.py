@@ -47,6 +47,9 @@ def dev_play(table, rounds=1000, shuffle_every=False):
         player_logic(table)
         dealer_logic(table)
         score_round(table)
+        print('Dealer: %s' % table.dealer)
+        for player in table.players:
+            print('Player %s: %s'% (player, table.players[player]))
         reset_round(table)
         if shuffle_every:
             table.shoe.shuffle()
@@ -77,7 +80,7 @@ def reset_round(table):
         table.players[player].hand.reset()
         table.players[player].hand.reset_bet()
 
-def dealer_logic(table):
+def dealer_logic(table, debug=False):
     dealer = table.dealer
     player_scores = []
     for p in table.players:
@@ -93,7 +96,7 @@ def dealer_logic(table):
             dealer.hand.standed()
             break
 
-def player_logic(table):
+def player_logic(table, debug=False):
     for player_id in table.players:
         player = table.players[player_id]
         if player.human:
@@ -118,7 +121,7 @@ def human_input(table, player):
         if action.lower() == 's':
             player.hand.standed()
 
-def run_profit(num_rounds = 10, hands=1000):
+def run_profit(num_rounds = 1, hands=1):
     for i in range(num_rounds):
         table = dev_table()
         t1 = time.time()
