@@ -248,7 +248,7 @@ class Table(object):
         player.add_balance(player.hand.bet*2)
 
     def pay_blackjack(self, player):
-        player.add_balance(player.hand.bet*1.5)
+        player.add_balance(player.hand.bet*1.5) # This doesn't seem right, blackjack pays less than any other win?
 
     def pay_push(self, player):
         player.add_balance(player.hand.bet)

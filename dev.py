@@ -20,16 +20,16 @@ import time
 #   Player busts not updated, handled in Hand class
 
 
-def dev_table(numplayers = 3, balance = 0):
+def dev_table(numplayers = 3, balance = 10):
     table = Table()
     try:
         player_count = max(table.players)
     except ValueError: # max() arg is an empty sequence
         player_count = 0
     total_players = player_count + numplayers
-    for i in range(player_count+1,total_players+1):
-        table.add_player(Player(i))
-        table.players[i].add_balance(balance)
+    for player in range(player_count+1,total_players+1):
+        table.add_player(Player(player))
+        table.players[player].add_balance(balance)
     #add_human(table, balance)
     return table
 
@@ -41,22 +41,22 @@ def add_human(table, balance):
 
 def dev_play(table, rounds=1000, shuffle_every=False, debug=True):
     for rnd in range(rounds):
-        for i in table.players:
-            table.players[i].bet(10)
+        for player in table.players:
+            table.players[player].bet(10)
         deal_round(table)
         player_logic(table,debug=debug)
         dealer_logic(table,debug=debug)
         score_round(table, debug=debug)
         if debug:
-            print('Dealer: %s' % table.dealer)
             for player in table.players:
                 print('Player %s: %s'% (player, table.players[player]))
+            print('Dealer: %s' % table.dealer)
             print('######## END HAND ########\n')
         reset_round(table)
         if shuffle_every:
             table.shoe.shuffle()
     profit = 0
-    for p in table.players:
+    for p in table.players: # TODO: is this accurate?
         profit -= (table.players[p].balance)
     print('House Profit: %s' % (profit))
     return profit # for (TODO) statistical work
@@ -70,11 +70,11 @@ def score_round(table, debug=False):
     for player in table.players:
         if debug:
             bal_before = table.players[player].balance
-            print('Player %s balance before payout: %s' % (player, bal_before))
+            print('Player %s balance before payout: %s' % (player, bal_before-table.players[player].hand.bet))
         table.determine_winner(player)
         if debug:
             bal_after = table.players[player].balance
-            print('Player %s balance: %s' % (player, bal_after))
+            print('Player %s balance after payout: %s\n' % (player, bal_after))
 
 def reset_round(table):
     table.dealer.hand.reset()
@@ -96,7 +96,11 @@ def dealer_logic(table, debug=False):
             #print('New Dealer score: %s' % dealer.hand.score)
         else:
             if debug:
-                print('Dealer standing\n')
+                print('Dealer score: %s' % dealer.hand.score)
+                if dealer.hand.score > 21:
+                    print('Dealer busts!')
+                else:
+                    print('Dealer standing\n')
             dealer.hand.standed()
             break
 
@@ -107,7 +111,7 @@ def player_logic(table, debug=False):
             human_input(table, player)
         else:
             if debug:
-                print('Player %s score: %s' %(str(player_id),player.hand.score))
+                print('Player %s score: %s' %(str(player_id), player.hand.score))
             while player.hand.score <= 16:
                 if debug:
                     print('Player %s hits' %str(player_id))
@@ -115,7 +119,10 @@ def player_logic(table, debug=False):
                 if debug:
                     print('New score: %s' %player.hand.score)
             if debug:
-                print('Player %s standing\n' % player.id)
+                if player.hand.score > 21:
+                    print('Player %s busts\n' % player.id)
+                else:
+                    print('Player %s standing\n' % player.id)
             player.hand.standed()
 
 def human_input(table, player):
