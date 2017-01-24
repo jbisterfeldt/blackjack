@@ -20,7 +20,7 @@ import time
 #   Player busts not updated, handled in Hand class
 
 
-def dev_table(numplayers = 3, default_balance=100, add_human=False, debug=False):
+def dev_table(numplayers = 3, default_balance=10, debug=False):
     table = Table(debug=debug)
     try:
         player_count = max(table.players)
@@ -61,7 +61,11 @@ def dev_play(table, rounds=1000, shuffle_every=False, debug=False):
         profit -= (table.players[p].balance)
     print('House Profit: %s' % (profit))
     # if human
-        #print('Your balance: %s' % (table.players[max(table.players)].balance))
+    for player in table.players:
+        if not table.players[player].human:
+            print('Player %s (AI) balance: %s' % (table.players[player].id, table.players[player].balance))
+        else:
+            print('Player %s (Human) balance: %s' % (table.players[player].id, table.players[player].balance))
     return profit # for (TODO) statistical work
 
 def deal_round(table):
@@ -148,10 +152,10 @@ def human_input(table, player):
             print('Player %s stands\n' %(player.id))
             player.hand.standed()
 
-def run_profit(num_rounds = 3, hands=500, include_human=False, debug=False, default_balance=100):
+def run_profit(num_rounds = 1, hands=20, include_human=False, num_humans=0, debug=False, default_balance=100):
     for i in range(num_rounds):
         table = dev_table(debug=debug)
-        if include_human:
+        for peep in range(1, num_humans):
             add_human(table, default_balance)
         t1 = time.time()
         dev_play(table, hands, shuffle_every=True, debug=debug)
@@ -159,5 +163,6 @@ def run_profit(num_rounds = 3, hands=500, include_human=False, debug=False, defa
         print('%0.3f seconds' % (t2-t1))
 
 #run_profit(debug=True)
-run_profit(debug=False)
-#run_profit(include_human=True, debug=True)
+#run_profit(debug=False)
+#run_profit(num_humans=2, debug=True)
+run_profit(num_humans=2, debug=False)
