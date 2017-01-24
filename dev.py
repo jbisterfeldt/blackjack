@@ -20,8 +20,8 @@ import time
 #   Player busts not updated, handled in Hand class
 
 
-def dev_table(numplayers = 3, default_balance=100, add_human=False):
-    table = Table()
+def dev_table(numplayers = 3, default_balance=100, add_human=False, debug=False):
+    table = Table(debug=debug)
     try:
         player_count = max(table.players)
     except ValueError: # max() arg is an empty sequence
@@ -44,7 +44,7 @@ def dev_play(table, rounds=1000, shuffle_every=False, debug=False):
     for rnd in range(rounds):
         for player in table.players:
             table.players[player].bet(10)
-        deal_round(table, debug=debug)
+        deal_round(table)
         player_logic(table,debug=debug)
         dealer_logic(table,debug=debug)
         score_round(table, debug=debug)
@@ -60,13 +60,14 @@ def dev_play(table, rounds=1000, shuffle_every=False, debug=False):
     for p in table.players: # TODO: is this accurate?
         profit -= (table.players[p].balance)
     print('House Profit: %s' % (profit))
-    print('Your balance: %s' % (table.players[max(table.players)].balance))
+    # if human
+        #print('Your balance: %s' % (table.players[max(table.players)].balance))
     return profit # for (TODO) statistical work
 
-def deal_round(table, debug=False):
+def deal_round(table):
     for card in range(2):
-        table.deal_players(debug=debug)
-        table.deal_dealer(debug=debug)
+        table.deal_players()
+        table.deal_dealer()
 
 def score_round(table, debug=False):
     for player in table.players:
@@ -104,10 +105,12 @@ def dealer_logic(table, debug=False):
                 print('Dealer score: %s %s' % (dealer.hand.score, dealer.hand))
             if dealer.hand.score > 21:
                 dealer.busts += 1
-                print('Dealer busts!\n')
+                if debug:
+                    print('Dealer busts!\n')
             else:
-                print('Dealer stands\n')
                 dealer.hand.standed()
+                if debug:
+                    print('Dealer stands\n')
             break
 
 def player_logic(table, debug=False):
@@ -145,9 +148,9 @@ def human_input(table, player):
             print('Player %s stands\n' %(player.id))
             player.hand.standed()
 
-def run_profit(num_rounds = 1, hands=3, include_human=False, debug=False, default_balance=100):
+def run_profit(num_rounds = 3, hands=500, include_human=False, debug=False, default_balance=100):
     for i in range(num_rounds):
-        table = dev_table()
+        table = dev_table(debug=debug)
         if include_human:
             add_human(table, default_balance)
         t1 = time.time()
@@ -155,6 +158,6 @@ def run_profit(num_rounds = 1, hands=3, include_human=False, debug=False, defaul
         t2 = time.time()
         print('%0.3f seconds' % (t2-t1))
 
+#run_profit(debug=True)
+run_profit(debug=False)
 #run_profit(include_human=True, debug=True)
-
-run_profit(include_human=True, debug=True)

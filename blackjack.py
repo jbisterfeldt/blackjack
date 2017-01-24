@@ -202,7 +202,8 @@ class Player(object):
 
 
 class Table(object):
-    def __init__(self, num_decks=6, limit=400):
+    def __init__(self, num_decks=6, limit=400, debug=False):
+        self.debug = debug
         self.num_decks = num_decks
         self.shoe = Shoe(self.num_decks)
         self.dealer = Dealer()
@@ -245,34 +246,39 @@ class Table(object):
                 return True
 
     def pay_win(self, player):
-        print('paying win')
+        if self.debug:
+            print('paying win')
         player.add_balance(player.hand.bet*2)
 
     def pay_blackjack(self, player):
-        print('paying blackjack')
+        if self.debug:
+            print('paying blackjack')
         player.add_balance(player.hand.bet*1.5) # This doesn't seem right, blackjack pays less than any other win?
         
     def pay_push(self, player):
-        print('paying push')
+        if self.debug:
+            print('paying push')
         player.add_balance(player.hand.bet)
 
     def pay_insurance(self, player):
-        print('paying insurance')
+        if self.debug:
+            print('paying insurance')
         player.add_balance(player.hand.insurance*3)
 
     def change_shoe(self):
-        print('changing shoe')
+        if self.debug:
+            print('changing shoe')
         self.shoe = Shoe(self.num_decks)
         return self.shoe
 
-    def deal_players(self, debug=False):
-        if debug:
-            print('dealing  card to players')
+    def deal_players(self):
+        if self.debug:
+            print('dealing card to players')
         for player in self.players:
             self.players[player].take_card(self.shoe.deal_card())
 
-    def deal_dealer(self, debug=False):
-        if debug:
+    def deal_dealer(self):
+        if self.debug:
             print('dealing card to dealer')
         self.dealer.take_card(self.shoe.deal_card())
 
