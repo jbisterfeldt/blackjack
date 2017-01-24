@@ -173,8 +173,8 @@ class Player(object):
         self.balance = 0
         self.hand = Hand(self.id)
         self.wins = 0
-        self.busts = 0 # BUG: handled in Hand(), not updated in case of bust
         # TODO: implement increment of bust count when hand is scored >21
+        self.busts = 0 # BUG: handled in Hand(), not updated in case of bust
                
     def __repr__(self):
         return("Score: %s, Hand: %s\nWins: %s, Busts: %s, Balance: %s\n" %(self.hand.score_hand(),
@@ -245,26 +245,35 @@ class Table(object):
                 return True
 
     def pay_win(self, player):
+        print('paying win')
         player.add_balance(player.hand.bet*2)
 
     def pay_blackjack(self, player):
+        print('paying blackjack')
         player.add_balance(player.hand.bet*1.5) # This doesn't seem right, blackjack pays less than any other win?
-
+        
     def pay_push(self, player):
+        print('paying push')
         player.add_balance(player.hand.bet)
 
     def pay_insurance(self, player):
+        print('paying insurance')
         player.add_balance(player.hand.insurance*3)
 
     def change_shoe(self):
+        print('changing shoe')
         self.shoe = Shoe(self.num_decks)
         return self.shoe
 
-    def deal_players(self):
+    def deal_players(self, debug=False):
+        if debug:
+            print('dealing  card to players')
         for player in self.players:
             self.players[player].take_card(self.shoe.deal_card())
 
-    def deal_dealer(self):
-            self.dealer.take_card(self.shoe.deal_card())
+    def deal_dealer(self, debug=False):
+        if debug:
+            print('dealing card to dealer')
+        self.dealer.take_card(self.shoe.deal_card())
 
             

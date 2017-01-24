@@ -20,7 +20,7 @@ import time
 #   Player busts not updated, handled in Hand class
 
 
-def dev_table(numplayers = 3, balance = 10, add_human=False):
+def dev_table(numplayers = 3, default_balance=100, add_human=False):
     table = Table()
     try:
         player_count = max(table.players)
@@ -29,7 +29,7 @@ def dev_table(numplayers = 3, balance = 10, add_human=False):
     total_players = player_count + numplayers
     for player in range(player_count+1,total_players+1):
         table.add_player(Player(player))
-        table.players[player].add_balance(balance)
+        table.players[player].add_balance(default_balance)
     if add_human:
         add_human(table, balance=10)
     return table
@@ -44,7 +44,7 @@ def dev_play(table, rounds=1000, shuffle_every=False, debug=False):
     for rnd in range(rounds):
         for player in table.players:
             table.players[player].bet(10)
-        deal_round(table)
+        deal_round(table, debug=debug)
         player_logic(table,debug=debug)
         dealer_logic(table,debug=debug)
         score_round(table, debug=debug)
@@ -63,10 +63,10 @@ def dev_play(table, rounds=1000, shuffle_every=False, debug=False):
     print('Your balance: %s' % (table.players[max(table.players)].balance))
     return profit # for (TODO) statistical work
 
-def deal_round(table):
+def deal_round(table, debug=False):
     for card in range(2):
-        table.deal_players()
-        table.deal_dealer()
+        table.deal_players(debug=debug)
+        table.deal_dealer(debug=debug)
 
 def score_round(table, debug=False):
     for player in table.players:
@@ -132,7 +132,7 @@ def player_logic(table, debug=False):
             player.hand.standed()
 
 def human_input(table, player):
-    print('Player %s (your) hand %s, score %s' % (player.id, player.hand, player.hand.score))
+    print('Player %s (human) hand %s, score %s' % (player.id, player.hand, player.hand.score))
     #while player.hand.stand == False:
     while not player.hand.stand:
         action = input('hit (h) or stand (s)? ')
@@ -140,15 +140,16 @@ def human_input(table, player):
             player.take_card(table.shoe.deal_card())
             print('Hit %s, score now %s' % (table.shoe.dealt_card, player.hand.score))
             if player.hand.score > 21:
-                print('Busted!')
+                print('Busted!\n')
         if action.lower() == 's':
+            print('Player %s stands\n' %(player.id))
             player.hand.standed()
 
-def run_profit(num_rounds = 1, hands=3, include_human=False, debug=False):
+def run_profit(num_rounds = 1, hands=3, include_human=False, debug=False, default_balance=100):
     for i in range(num_rounds):
         table = dev_table()
         if include_human:
-            add_human(table, 10)
+            add_human(table, default_balance)
         t1 = time.time()
         dev_play(table, hands, shuffle_every=True, debug=debug)
         t2 = time.time()
