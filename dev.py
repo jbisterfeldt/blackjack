@@ -20,7 +20,7 @@ import time
 #   Player busts not updated, handled in Hand class
 
 
-def dev_table(numplayers = 3, default_balance=100, debug=False):
+def dev_table(numplayers = 3, default_balance=0, debug=False):
     table = Table(debug=debug)
     try:
         player_count = max(table.players)
@@ -154,11 +154,11 @@ def human_input(table, player):
             print('Player %s stands\n' %(player.id))
             player.hand.standed()
 
-def run_profit(num_rounds = 1, hands=20, include_human=False, num_humans=0, debug=False, default_balance=100):
+def run_profit(num_rounds = 1, hands=20, num_humans=0, debug=False, balance=0):
     for i in range(num_rounds):
-        table = dev_table(debug=debug,default_balance=default_balance)
+        table = dev_table(debug=debug,default_balance=balance)
         for peep in range(1, num_humans):
-            add_human(table, default_balance)
+            add_human(table, balance)
         t1 = time.time()
         dev_play(table, hands, shuffle_every=True, debug=debug)
         t2 = time.time()
