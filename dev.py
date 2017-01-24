@@ -20,7 +20,7 @@ import time
 #   Player busts not updated, handled in Hand class
 
 
-def dev_table(numplayers = 3, balance = 10):
+def dev_table(numplayers = 3, balance = 10, add_human=False):
     table = Table()
     try:
         player_count = max(table.players)
@@ -30,7 +30,8 @@ def dev_table(numplayers = 3, balance = 10):
     for player in range(player_count+1,total_players+1):
         table.add_player(Player(player))
         table.players[player].add_balance(balance)
-    #add_human(table, balance)
+    if add_human:
+        add_human(table, balance=10)
     return table
 
 def add_human(table, balance):
@@ -39,7 +40,7 @@ def add_human(table, balance):
     table.add_player(Player(pid, human=True))
     table.players[pid].add_balance(balance)
 
-def dev_play(table, rounds=1000, shuffle_every=False, debug=True):
+def dev_play(table, rounds=1000, shuffle_every=False, debug=False):
     for rnd in range(rounds):
         for player in table.players:
             table.players[player].bet(10)
@@ -59,6 +60,7 @@ def dev_play(table, rounds=1000, shuffle_every=False, debug=True):
     for p in table.players: # TODO: is this accurate?
         profit -= (table.players[p].balance)
     print('House Profit: %s' % (profit))
+    print('Your balance: %s' % (table.players[max(table.players)].balance))
     return profit # for (TODO) statistical work
 
 def deal_round(table):
@@ -130,10 +132,10 @@ def player_logic(table, debug=False):
             player.hand.standed()
 
 def human_input(table, player):
-    print('Your hand %s, score %s' % (player.hand, player.hand.score))
+    print('Player %s (your) hand %s, score %s' % (player.id, player.hand, player.hand.score))
     #while player.hand.stand == False:
     while not player.hand.stand:
-        action = raw_input('hit (h) or stand (s)? ')
+        action = input('hit (h) or stand (s)? ')
         if action.lower() == 'h':
             player.take_card(table.shoe.deal_card())
             print('Hit %s, score now %s' % (table.shoe.dealt_card, player.hand.score))
@@ -142,12 +144,16 @@ def human_input(table, player):
         if action.lower() == 's':
             player.hand.standed()
 
-def run_profit(num_rounds = 1, hands=3):
+def run_profit(num_rounds = 1, hands=3, include_human=False, debug=False):
     for i in range(num_rounds):
         table = dev_table()
+        if include_human:
+            add_human(table, 10)
         t1 = time.time()
-        dev_play(table, hands, shuffle_every=True, debug=True)
+        dev_play(table, hands, shuffle_every=True, debug=debug)
         t2 = time.time()
         print('%0.3f seconds' % (t2-t1))
 
-run_profit()
+#run_profit(include_human=True, debug=True)
+
+run_profit(include_human=True, debug=True)
