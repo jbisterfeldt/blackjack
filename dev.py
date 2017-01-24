@@ -20,7 +20,7 @@ import time
 #   Player busts not updated, handled in Hand class
 
 
-def dev_table(numplayers = 3, default_balance=10, debug=False):
+def dev_table(numplayers = 3, default_balance=100, debug=False):
     table = Table(debug=debug)
     try:
         player_count = max(table.players)
@@ -80,6 +80,7 @@ def score_round(table, debug=False):
             print('Player %s balance before payout: %s' % (player, bal_before))
         table.determine_winner(player)
         if debug:
+            print('Dealer: %s Player %s' %(table.dealer.hand.score, table.players[player].hand.score))
             bal_after = table.players[player].balance
             print('Player %s balance after payout: %s\n' % (player, bal_after))
 
@@ -98,7 +99,7 @@ def dealer_logic(table, debug=False):
         print('Player scores: %s' % player_scores)
         print('Dealer score: %s' % dealer.hand.score)
     while dealer.hand.score < max(player_scores):
-        if dealer.hand.score <= 16:
+        if dealer.hand.score < 17: # dealer stands on 17
             if debug:
                 print('Dealer hits')
             dealer.take_card(table.shoe.deal_card())
@@ -142,19 +143,20 @@ def human_input(table, player):
     print('Player %s (human) hand %s, score %s' % (player.id, player.hand, player.hand.score))
     #while player.hand.stand == False:
     while not player.hand.stand:
+    #while not player.hand.score == 21:
         action = input('hit (h) or stand (s)? ')
         if action.lower() == 'h':
             player.take_card(table.shoe.deal_card())
             print('Hit %s, score now %s' % (table.shoe.dealt_card, player.hand.score))
             if player.hand.score > 21:
-                print('Busted!\n')
+                print('Player %s busted!\n' % player.id)
         if action.lower() == 's':
             print('Player %s stands\n' %(player.id))
             player.hand.standed()
 
 def run_profit(num_rounds = 1, hands=20, include_human=False, num_humans=0, debug=False, default_balance=100):
     for i in range(num_rounds):
-        table = dev_table(debug=debug)
+        table = dev_table(debug=debug,default_balance=default_balance)
         for peep in range(1, num_humans):
             add_human(table, default_balance)
         t1 = time.time()
@@ -165,4 +167,4 @@ def run_profit(num_rounds = 1, hands=20, include_human=False, num_humans=0, debu
 #run_profit(debug=True)
 #run_profit(debug=False)
 #run_profit(num_humans=2, debug=True)
-run_profit(num_humans=2, debug=False)
+run_profit(hands=1, num_humans=10, debug=True)
