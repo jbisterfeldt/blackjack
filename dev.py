@@ -70,7 +70,7 @@ def score_round(table, debug=False):
     for player in table.players:
         if debug:
             bal_before = table.players[player].balance
-            print('Player %s balance before payout: %s' % (player, bal_before-table.players[player].hand.bet))
+            print('Player %s balance before payout: %s' % (player, bal_before))
         table.determine_winner(player)
         if debug:
             bal_after = table.players[player].balance
@@ -87,21 +87,25 @@ def dealer_logic(table, debug=False):
     player_scores = []
     for p in table.players:
         player_scores.append(table.players[p].hand.score)
-    #print('Player scores: %s' % player_scores)
-    #print('Dealer score: %s' % dealer.hand.score)
+    if debug:
+        print('Player scores: %s' % player_scores)
+        print('Dealer score: %s' % dealer.hand.score)
     while dealer.hand.score < max(player_scores):
         if dealer.hand.score <= 16:
-            #print('Dealer hitting')
+            if debug:
+                print('Dealer hits')
             dealer.take_card(table.shoe.deal_card())
-            #print('New Dealer score: %s' % dealer.hand.score)
+            if debug:
+                print('New Dealer score: %s' % dealer.hand.score)
         else:
             if debug:
-                print('Dealer score: %s' % dealer.hand.score)
-                if dealer.hand.score > 21:
-                    print('Dealer busts!')
-                else:
-                    print('Dealer standing\n')
-            dealer.hand.standed()
+                print('Dealer score: %s %s' % (dealer.hand.score, dealer.hand))
+            if dealer.hand.score > 21:
+                dealer.busts += 1
+                print('Dealer busts!\n')
+            else:
+                print('Dealer stands\n')
+                dealer.hand.standed()
             break
 
 def player_logic(table, debug=False):
@@ -111,18 +115,18 @@ def player_logic(table, debug=False):
             human_input(table, player)
         else:
             if debug:
-                print('Player %s score: %s' %(str(player_id), player.hand.score))
+                print('Player %s score: %s %s' %(str(player_id), player.hand.score, player.hand))
             while player.hand.score <= 16:
                 if debug:
                     print('Player %s hits' %str(player_id))
                 player.take_card(table.shoe.deal_card())
                 if debug:
-                    print('New score: %s' %player.hand.score)
+                    print('New score: %s %s' %(player.hand.score, player.hand))
             if debug:
                 if player.hand.score > 21:
                     print('Player %s busts\n' % player.id)
                 else:
-                    print('Player %s standing\n' % player.id)
+                    print('Player %s stands\n' % player.id)
             player.hand.standed()
 
 def human_input(table, player):
